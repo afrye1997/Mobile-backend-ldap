@@ -4,7 +4,8 @@ const cors=require('cors')
 
 const app= express();
 const PORT=process.env.PORT || 3000;
-
+const connection= require('./connection')
+\
 app.use(cors());
 
 
@@ -18,7 +19,6 @@ app.get('/', (req, res) => {
 
 app.get('/checking',  async (req, respond)=>{
     // const connection= require('./connection')
-    var connection= new (require('./connection'))();
   //  console.log("1", connection.connected)
     const userUARK= req.query.userUARK; 
     console.log(userUARK)
@@ -52,8 +52,6 @@ app.get('/checking',  async (req, respond)=>{
            }
        });
     connection.unbind();
-
-  
   })
 
 /**
