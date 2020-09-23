@@ -18,7 +18,7 @@ app.get('/', (req, res) => {
 
 app.get('/checking',  async (req, respond)=>{
     const connection= require('./connection')
-    console.log("1", connection.connected)
+  //  console.log("1", connection.connected)
     const userUARK= req.query.userUARK; 
     console.log(userUARK)
     var opts = {
@@ -29,7 +29,7 @@ app.get('/checking',  async (req, respond)=>{
        };
        //base: which location i need to search
        connection.search('ou=people,dc=uark,dc=edu', opts, (err, res) => {
-        console.log("2", connection.connected)
+      //  console.log("2", connection.connected)
            if (err) {
                console.log("Error in search " + err)
                respond.send("eek")
@@ -52,8 +52,7 @@ app.get('/checking',  async (req, respond)=>{
        });
     connection.unbind();
 
-    console.log("3", connection.connected)
-      
+  
   })
 
 /**
