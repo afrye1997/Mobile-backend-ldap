@@ -6,7 +6,7 @@
 
 // incidentally, the university's ldap server can be reached at ldaps://ds.uark.edu
 
-
+require('dotenv').config()
 var ldap = require('ldapjs');
 var client = ldap.createClient({
   url: 'ldap://ds.uark.edu',
@@ -28,41 +28,10 @@ function authenticateDN(username, password) {
     });
 }
 
-authenticateDN("uid=ds-csce,ou=people,dc=uark,dc=edu", "B33z1t_p0w")
-
+//authenticateDN("uid=ds-csce,ou=people,dc=uark,dc=edu", "B33z1t_p0w")
+authenticateDN(process.env.LDAP_USERNAME, process.env.LDAP_PASSWORD)
 module.exports = client;
 
-// function searchUser() {
-//     var opts = {
-//      filter:('&(studentclasses=CSCE*)(uid=af027)'),
-//         scope: 'sub', 
-//         attributes: ['uid','cn','mail','studentClasses','displayName']
-//     };
-
-//     //base: which location i need to search
-//     client.search('ou=people,dc=uark,dc=edu', opts, function (err, res) {
-//         if (err) {
-//             console.log("Error in search " + err)
-//         } else {
-//             console.log("res");
-            
-//             res.on('searchEntry', function (entry) {
-//                 console.log("entered here")
-//                console.log('entry: ' + JSON.stringify(entry.object));
-               
-//             });
-//             res.on('searchReference', function (referral) {
-//                 console.log('referral: ' + referral.uris.join());
-//             });
-//             res.on('error', function (err) {
-//                 console.error('error: ' + err.message);
-//             });
-//             res.on('end', function (result) {
-//                 console.log('status: ' + result.status);
-//             });
-//         }
-//     });
-// }
 
 
  

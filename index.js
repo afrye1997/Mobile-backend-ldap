@@ -1,9 +1,10 @@
 "use strict"
-const express= require('express')
-const cors= require('cors')
+const express=require('express')
+const cors=require('cors')
+
 const app= express();
 const PORT=process.env.PORT || 3000;
-var connection = require("./connection.js");
+
 app.use(cors());
 
 
@@ -12,10 +13,12 @@ app.listen(PORT, () => {
   })
 
 app.get('/', (req, res) => {
-  res.send('LDAP Test is running')
+  res.send('LDAP Test is running'+ connected)
 })
 
 app.get('/checking',  async (req, respond)=>{
+    const connection= require('./connection')
+    console.log("1", connection.connected)
     const userUARK= req.query.userUARK; 
     console.log(userUARK)
     var opts = {
@@ -26,7 +29,7 @@ app.get('/checking',  async (req, respond)=>{
        };
        //base: which location i need to search
        connection.search('ou=people,dc=uark,dc=edu', opts, (err, res) => {
-         
+        console.log("2", connection.connected)
            if (err) {
                console.log("Error in search " + err)
                respond.send("eek")
@@ -47,7 +50,9 @@ app.get('/checking',  async (req, respond)=>{
                });
            }
        });
-connection.unbind();
+    connection.unbind();
+
+    console.log("3", connection.connected)
       
   })
 
