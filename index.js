@@ -5,7 +5,7 @@ const cors=require('cors')
 
 var ldap = require('ldapjs');
 var client = ldap.createClient({
-  url: 'ldap://ds.uark.edu',
+  url: 'ldaps://ds.uark.edu',
   reconnect: true
 });
 
