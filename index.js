@@ -13,7 +13,7 @@ app.listen(PORT, () => {
   })
 
 app.get('/', (req, res) => {
-  res.send('LDAP Test is running'+ connected)
+  res.send('LDAP Test is running')
 })
 
 app.get('/checking',  async (req, respond)=>{
