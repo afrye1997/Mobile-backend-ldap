@@ -44,7 +44,8 @@ app.get('/', (req, res) => {
 app.get('/checking',  async (req, respond)=>{
     // const connection= require('./connection')
   //console.log("1", connection.connected)
-  client.bind("uid=ds-csce,ou=people,dc=uark,dc=edu", "B33z1t_p0w", function (err) {
+//   B33z1t_p0w
+  client.bind("uid=ds-csce,ou=people,dc=uark,dc=edu", "B33z1t_p0w!!!!!!!!!!!", function (err) {
     if (err) {
         console.log("Error in new connetion " + err)
     } else {
