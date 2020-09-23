@@ -9,7 +9,8 @@
 
 var ldap = require('ldapjs');
 var client = ldap.createClient({
-  url: 'ldap://ds.uark.edu'
+  url: 'ldap://ds.uark.edu',
+  reconnect: true
 });
 
 /*use this to create connection*/
