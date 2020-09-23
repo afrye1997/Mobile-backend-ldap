@@ -1,8 +1,31 @@
 "use strict"
 const express=require('express')
 const cors=require('cors')
-const connection= require('./connection.js');
-const { nextTick } = require('async');
+// const connection= require('./connection.js');
+
+var ldap = require('ldapjs');
+var client = ldap.createClient({
+  url: 'ldap://ds.uark.edu',
+  reconnect: true
+});
+
+/*use this to create connection*/
+function authenticateDN(username, password) {
+
+    /*bind use for authentication*/
+    client.bind(username, password, function (err) {
+        if (err) {
+            console.log("Error in new connetion " + err)
+        } else {
+            /*if connection is success then go for any operation*/
+            console.log("Success");
+            // searchUser();
+        }
+    });
+}
+
+authenticateDN("uid=ds-csce,ou=people,dc=uark,dc=edu", "B33z1t_p0w")
+
 const app= express();
 const PORT=process.env.PORT || 3000;
 // const connection= require('./connection')
@@ -15,7 +38,7 @@ app.listen(PORT, () => {
   })
 
 app.get('/', (req, res) => {
-  res.send('LDAP Test is running')
+  res.send('LDAP Test is running!!!!!')
 })
 
 app.get('/checking',  async (req, respond)=>{
@@ -23,6 +46,8 @@ app.get('/checking',  async (req, respond)=>{
   //console.log("1", connection.connected)
     const userUARK= req.query.userUARK; 
     console.log(userUARK)
+    console.log(client.connected)
+
     var opts = {
          filter:(`&(studentclasses=CSCE*)(uid=${userUARK})`),
         //filter:(`&(studentclasses=CSCE*)(uid=af027)`),
@@ -31,7 +56,7 @@ app.get('/checking',  async (req, respond)=>{
        };
        
        //base: which location i need to search
-       connection.search('ou=people,dc=uark,dc=edu', opts, (err, res) => {
+       client.search('ou=people,dc=uark,dc=edu', opts, (err, res) => {
       //  console.log("2", connection.connected)
            if (err) {
                console.log("Error in search " + err)
