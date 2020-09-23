@@ -10,21 +10,21 @@ var client = ldap.createClient({
 });
 
 /*use this to create connection*/
-function authenticateDN(username, password) {
+// function authenticateDN(username, password) {
 
-    /*bind use for authentication*/
-    client.bind(username, password, function (err) {
-        if (err) {
-            console.log("Error in new connetion " + err)
-        } else {
-            /*if connection is success then go for any operation*/
-            console.log("Success");
-            // searchUser();
-        }
-    });
-}
+//     /*bind use for authentication*/
+//     client.bind("uid=ds-csce,ou=people,dc=uark,dc=edu", "B33z1t_p0w", function (err) {
+//         if (err) {
+//             console.log("Error in new connetion " + err)
+//         } else {
+//             /*if connection is success then go for any operation*/
+//             console.log("Success");
+//             // searchUser();
+//         }
+//     });
+// }
 
-authenticateDN("uid=ds-csce,ou=people,dc=uark,dc=edu", "B33z1t_p0w")
+// authenticateDN("uid=ds-csce,ou=people,dc=uark,dc=edu", "B33z1t_p0w")
 
 const app= express();
 const PORT=process.env.PORT || 3000;
@@ -44,6 +44,16 @@ app.get('/', (req, res) => {
 app.get('/checking',  async (req, respond)=>{
     // const connection= require('./connection')
   //console.log("1", connection.connected)
+  client.bind("uid=ds-csce,ou=people,dc=uark,dc=edu", "B33z1t_p0w", function (err) {
+    if (err) {
+        console.log("Error in new connetion " + err)
+    } else {
+        /*if connection is success then go for any operation*/
+        console.log("Success");
+        // searchUser();
+    }
+});
+
     const userUARK= req.query.userUARK; 
     console.log(userUARK)
     console.log(client.connected)
