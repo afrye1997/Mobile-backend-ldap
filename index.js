@@ -1,7 +1,8 @@
 "use strict"
 const express=require('express')
 const cors=require('cors')
-const connection= require('./connection.js')
+const connection= require('./connection.js');
+const { nextTick } = require('async');
 const app= express();
 const PORT=process.env.PORT || 3000;
 // const connection= require('./connection')
@@ -48,8 +49,9 @@ app.get('/checking',  async (req, respond)=>{
                    respond.send("eek")
                });
                res.on('end', function (result) {
-
+                   console.log(result.status)
                });
+              
            }
        });
     
