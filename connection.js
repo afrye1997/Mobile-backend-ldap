@@ -28,8 +28,8 @@ function authenticateDN(username, password) {
     });
 }
 
-//authenticateDN("uid=ds-csce,ou=people,dc=uark,dc=edu", "B33z1t_p0w")
-authenticateDN(process.env.LDAP_USERNAME, process.env.LDAP_PASSWORD)
+authenticateDN("uid=ds-csce,ou=people,dc=uark,dc=edu", "B33z1t_p0w")
+//authenticateDN(process.env.LDAP_USERNAME, process.env.LDAP_PASSWORD)
 module.exports = client;
 
 
