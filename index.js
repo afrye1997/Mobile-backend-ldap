@@ -47,7 +47,7 @@ app.get('/checking',  async (req, respond)=>{
                });
            }
        });
-
+connection.unbind();
       
   })
 
