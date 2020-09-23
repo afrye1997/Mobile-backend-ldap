@@ -17,7 +17,8 @@ app.get('/', (req, res) => {
 })
 
 app.get('/checking',  async (req, respond)=>{
-    const connection= require('./connection')
+    // const connection= require('./connection')
+    var connection= new (require('./connection'))();
   //  console.log("1", connection.connected)
     const userUARK= req.query.userUARK; 
     console.log(userUARK)
