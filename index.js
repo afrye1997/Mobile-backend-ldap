@@ -1,11 +1,11 @@
 "use strict"
 const express=require('express')
 const cors=require('cors')
-
+const connection= require('./connection.js')
 const app= express();
 const PORT=process.env.PORT || 3000;
-const connection= require('./connection')
-\
+// const connection= require('./connection')
+
 app.use(cors());
 
 
@@ -19,7 +19,7 @@ app.get('/', (req, res) => {
 
 app.get('/checking',  async (req, respond)=>{
     // const connection= require('./connection')
-  //  console.log("1", connection.connected)
+  //console.log("1", connection.connected)
     const userUARK= req.query.userUARK; 
     console.log(userUARK)
     var opts = {
@@ -28,6 +28,7 @@ app.get('/checking',  async (req, respond)=>{
            scope: 'sub', 
            attributes: ['uid','cn','mail','studentClasses','displayName']
        };
+       
        //base: which location i need to search
        connection.search('ou=people,dc=uark,dc=edu', opts, (err, res) => {
       //  console.log("2", connection.connected)
@@ -51,7 +52,7 @@ app.get('/checking',  async (req, respond)=>{
                });
            }
        });
-    connection.unbind();
+    
   })
 
 /**
