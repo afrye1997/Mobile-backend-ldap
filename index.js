@@ -49,46 +49,81 @@ app.get('/checking',  async (req, respond)=>{
         console.log("Error in new connetion " + err)
     } else {
         /*if connection is success then go for any operation*/
-        console.log("Success");
+        console.log("Success!!!");
         // searchUser();
+        const userUARK= req.query.userUARK; 
+        console.log(userUARK)
+        console.log(client.connected)
+    
+        var opts = {
+             filter:(`&(studentclasses=CSCE*)(uid=${userUARK})`),
+            //filter:(`&(studentclasses=CSCE*)(uid=af027)`),
+               scope: 'sub', 
+               attributes: ['uid','cn','mail','studentClasses','displayName']
+           };
+           
+           //base: which location i need to search
+           client.search('ou=people,dc=uark,dc=edu', opts, (err, res) => {
+          //  console.log("2", connection.connected)
+               if (err) {
+                   console.log("Error in search " + err)
+                   respond.send("eek")
+               } else {
+                   res.on('searchEntry', async (entry)=> {
+                   respond.send(entry.object)
+                   });
+                   res.on('searchReference', function (referral) {
+                       console.log('referral: ' + referral.uris.join());
+                   });
+       
+                   res.on('error', function (err) {
+                       console.error('error: ' + err.message);
+                       respond.send("eek")
+                   });
+                   res.on('end', function (result) {
+                       console.log(result.status)
+                   });
+                  
+               }
+           });
     }
 });
 
-    const userUARK= req.query.userUARK; 
-    console.log(userUARK)
-    console.log(client.connected)
+    // const userUARK= req.query.userUARK; 
+    // console.log(userUARK)
+    // console.log(client.connected)
 
-    var opts = {
-         filter:(`&(studentclasses=CSCE*)(uid=${userUARK})`),
-        //filter:(`&(studentclasses=CSCE*)(uid=af027)`),
-           scope: 'sub', 
-           attributes: ['uid','cn','mail','studentClasses','displayName']
-       };
+    // var opts = {
+    //      filter:(`&(studentclasses=CSCE*)(uid=${userUARK})`),
+    //     //filter:(`&(studentclasses=CSCE*)(uid=af027)`),
+    //        scope: 'sub', 
+    //        attributes: ['uid','cn','mail','studentClasses','displayName']
+    //    };
        
-       //base: which location i need to search
-       client.search('ou=people,dc=uark,dc=edu', opts, (err, res) => {
-      //  console.log("2", connection.connected)
-           if (err) {
-               console.log("Error in search " + err)
-               respond.send("eek")
-           } else {
-               res.on('searchEntry', async (entry)=> {
-               respond.send(entry.object)
-               });
-               res.on('searchReference', function (referral) {
-                   console.log('referral: ' + referral.uris.join());
-               });
+    //    //base: which location i need to search
+    //    client.search('ou=people,dc=uark,dc=edu', opts, (err, res) => {
+    //   //  console.log("2", connection.connected)
+    //        if (err) {
+    //            console.log("Error in search " + err)
+    //            respond.send("eek")
+    //        } else {
+    //            res.on('searchEntry', async (entry)=> {
+    //            respond.send(entry.object)
+    //            });
+    //            res.on('searchReference', function (referral) {
+    //                console.log('referral: ' + referral.uris.join());
+    //            });
    
-               res.on('error', function (err) {
-                   console.error('error: ' + err.message);
-                   respond.send("eek")
-               });
-               res.on('end', function (result) {
-                   console.log(result.status)
-               });
+    //            res.on('error', function (err) {
+    //                console.error('error: ' + err.message);
+    //                respond.send("eek")
+    //            });
+    //            res.on('end', function (result) {
+    //                console.log(result.status)
+    //            });
               
-           }
-       });
+    //        }
+    //    });
     
   })
 
