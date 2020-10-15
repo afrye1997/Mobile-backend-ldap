@@ -4,7 +4,7 @@ require("dotenv").config();
 const fetch = require("node-fetch");
 const express = require("express");
 const cors = require("cors");
-const axios = require('axios')
+const axios = require("axios");
 const app = express();
 app.use(cors());
 const bodyParser = require("body-parser");
@@ -23,43 +23,68 @@ app.listen(PORT, () => {
 });
 
 app.get("/", (req, res) => {
-  res.send("allison");
+  res.send("LDAP API is running");
 });
 
+
+ //checking here
+              /**
+               * if( isAccountCreated)
+               *  return full object
+               * else if isaccount not created
+               *  call add new user
+               * return wrong credentials
+               */
+
+
+
+
 app.post("/login", (req, respond) => {
-  console.log(req.body);
+  //Takes in username and password
   const userUARK = req.body.user;
   const userPW = req.body.password;
-  //
+  
+  //check if username and password are valid
   client.bind(
     `uid= ${userUARK},ou=People,dc=uark,dc=edu`,
     `${userPW}`,
     function (err) {
       if (err) {
-        respond.send("Incorrect login");
+        console.log("Incorrect login");
+        respond.send(false)
       } else {
-        console.log("successful auth");
+        console.log("Successful Login!");
+
 
         var opts = {
           filter: `&(studentclasses=CSCE*)(uid=${userUARK})`,
           scope: "sub",
-          attributes: ["uid", "givenName", "mail", "studentClasses", "displayName", "sn", "studentDepartments"],
+          attributes: [
+            "uid",
+            "givenName",
+            "mail",
+            "studentClasses",
+            "displayName",
+            "sn",
+            "studentDepartments",
+          ],
         };
 
         //base: which location i need to search
 
+        //now will return all info associated with user from LDAP
         client.search("ou=people,dc=uark,dc=edu", opts, (err, res) => {
           if (err) {
             console.log("Error in search " + err);
-            respond.send("User does not exist");
+            respond.send(false);
           } else {
             res.on("searchEntry", async (entry) => {
-              
-
+              //LDAP object
               const LDAPUSER = entry.object;
 
+              //now let's see if user exists in our db, as in if they have logged on
               fetch(
-                `http://localhost:4000/users/getUser?USER_id=${userUARK}`
+                `http://mobile-app.ddns.uark.edu/CRUDapis/users/getUser?USER_id=${userUARK}`
               ).then((res) => {
                 if (res.status === 400) {
                   //if person doesn't exist, let's add them
@@ -70,39 +95,32 @@ app.post("/login", (req, respond) => {
                     studentClasses,
                     displayName,
                     sn,
-                    studentDepartments
-
+                    studentDepartments,
                   } = LDAPUSER;
-                  
 
+                  //if an error is not returned, then we know we need
+                  //to add them to the db for the first time
                   axios
-                    .post("http://localhost:4000/users/addUser", {
-                      
-                        USER_id: `${uid}`,
-                        USER_fName: `${givenName}`,
-                        USER_LName: `${sn}`,
-                        USER_email: `${mail}`
+                    .post("http://mobile-app.ddns.uark.edu/CRUDapis/users/addUser", {
+                      USER_id: `${uid}`,
+                      USER_fName: `${givenName}`,
+                      USER_LName: `${sn}`,
+                      USER_email: `${mail}`,
                     })
                     .then((res) => {
                       console.log(`statusCode: ${res.statusCode}`);
-                      respond.send("worked"); //returns the ldap
+                      console.log(givenName + " is added to DB")
+                      respond.send(true); //returns the ldap
                     })
                     .catch((error) => {
                       console.error(error);
+                      respond.send(false)
                     });
-                }else{
-                  respond.send("was already in db")
+                } else {
+                  console.log(userUARK + " was already in DB")
+                  respond.send(false);
                 }
               });
-
-              //checking here
-              /**
-               * if( isAccountCreated)
-               *  return full object
-               * else if isaccount not created
-               *  call add new user
-               * return wrong credentials
-               */
             });
 
             res.on("searchReference", async (referral) => {
@@ -124,9 +142,10 @@ app.post("/login", (req, respond) => {
   );
 });
 
-app.get("/search", async (req, respond) => {
 
-    client.bind(process.env.LDAP_USERNAME, process.env.LDAP_PASSWORD , function (
+//can be deleted later
+app.get("/search", async (req, respond) => {
+  client.bind(process.env.LDAP_USERNAME, process.env.LDAP_PASSWORD, function (
     err
   ) {
     if (err) {
@@ -142,7 +161,7 @@ app.get("/search", async (req, respond) => {
       var opts = {
         filter: `&(studentclasses=CSCE*)(uid=${userUARK})`,
         scope: "sub",
-     //attributes: ["uid", "cn", "mail", "studentClasses", "displayName", "sn", "studentDepartments"],
+        //attributes: ["uid", "cn", "mail", "studentClasses", "displayName", "sn", "studentDepartments"],
       };
 
       //base: which location i need to search
@@ -152,7 +171,6 @@ app.get("/search", async (req, respond) => {
           console.log("Error in search " + err);
           respond.send("User does not exist");
         } else {
-
           res.on("searchEntry", async (entry) => {
             respond.send(entry.object);
           });
