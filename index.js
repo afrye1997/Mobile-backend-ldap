@@ -26,6 +26,19 @@ app.get("/", (req, res) => {
   res.send("allison");
 });
 
+app.get("/getTrue", (req, res) => {
+  const userTest={
+    
+  }
+  res.send("allison");
+});
+
+app.get("/getFalse", (req, res) => {
+  res.send("allison");
+});
+
+
+
 app.post("/login", (req, respond) => {
   console.log(req.body);
   const userUARK = req.body.user;
