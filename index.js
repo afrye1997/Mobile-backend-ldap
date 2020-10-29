@@ -13,7 +13,7 @@ app.use(bodyParser.json());
 var ldap = require("ldapjs");
 var client = ldap.createClient({
   url: "ldap://ds.uark.edu",
-  reconnect: false,
+  reconnect: true,
 });
 
 const PORT = 3000;
@@ -51,7 +51,10 @@ app.post("/login", (req, respond) => {
     function (err) {
       if (err) {
         console.log("Incorrect login");
-        respond.send(false)
+        return respond.status(400).send({
+          isError: true,
+          result: "Incorrect login",
+        });
       } else {
         console.log("Successful Login!");
 
@@ -76,7 +79,12 @@ app.post("/login", (req, respond) => {
         client.search("ou=people,dc=uark,dc=edu", opts, (err, res) => {
           if (err) {
             console.log("Error in search " + err);
-            respond.send(false);
+           
+            return res.status(400).send({
+              isError: true,
+              result: error.message,
+            });
+
           } else {
             res.on("searchEntry", async (entry) => {
               //LDAP object
@@ -110,15 +118,25 @@ app.post("/login", (req, respond) => {
                     .then((res) => {
                       console.log(`statusCode: ${res.statusCode}`);
                       console.log(givenName + " is added to DB")
-                      respond.send(true); //returns the ldap
+                      // respond.send(true); //returns the ldap
+                      respond.status(200).send({
+                        isError: false,
+                        result: LDAPUSER,
+                      });
                     })
                     .catch((error) => {
                       console.error(error);
-                      respond.send(false)
+                      return respond.status(400).send({
+                        isError: true,
+                        result: error.message,
+                      });
                     });
                 } else {
                   console.log(userUARK + " was already in DB")
-                  respond.send(false);
+                  return respond.status(400).send({
+                    isError: true,
+                    result: "Already in db",
+                  });
                 }
               });
             });
@@ -193,8 +211,4 @@ app.get("/search", async (req, respond) => {
   });
 });
 
-/**
- * 
- *  if (req.filter.matches(obj.attributes))
-  res.send(obj);
- */
+
