@@ -4,7 +4,7 @@ require("dotenv").config();
 const fetch = require("node-fetch");
 const express = require("express");
 const cors = require("cors");
-const axios = require('axios')
+const axios = require("axios");
 const app = express();
 app.use(cors());
 const bodyParser = require("body-parser");
@@ -27,17 +27,13 @@ app.get("/", (req, res) => {
 });
 
 app.get("/getTrue", (req, res) => {
-  const userTest={
-    
-  }
+  const userTest = {};
   res.send("allison");
 });
 
 app.get("/getFalse", (req, res) => {
   res.send("allison");
 });
-
-
 
 app.post("/login", (req, respond) => {
   console.log(req.body);
@@ -56,7 +52,15 @@ app.post("/login", (req, respond) => {
         var opts = {
           filter: `&(studentclasses=CSCE*)(uid=${userUARK})`,
           scope: "sub",
-          attributes: ["uid", "givenName", "mail", "studentClasses", "displayName", "sn", "studentDepartments"],
+          attributes: [
+            "uid",
+            "givenName",
+            "mail",
+            "studentClasses",
+            "displayName",
+            "sn",
+            "studentDepartments",
+          ],
         };
 
         //base: which location i need to search
@@ -67,8 +71,6 @@ app.post("/login", (req, respond) => {
             respond.send("User does not exist");
           } else {
             res.on("searchEntry", async (entry) => {
-              
-
               const LDAPUSER = entry.object;
 
               fetch(
@@ -83,18 +85,15 @@ app.post("/login", (req, respond) => {
                     studentClasses,
                     displayName,
                     sn,
-                    studentDepartments
-
+                    studentDepartments,
                   } = LDAPUSER;
-                  
 
                   axios
                     .post("http://localhost:4000/users/addUser", {
-                      
-                        USER_id: `${uid}`,
-                        USER_fName: `${givenName}`,
-                        USER_LName: `${sn}`,
-                        USER_email: `${mail}`
+                      USER_id: `${uid}`,
+                      USER_fName: `${givenName}`,
+                      USER_LName: `${sn}`,
+                      USER_email: `${mail}`,
                     })
                     .then((res) => {
                       console.log(`statusCode: ${res.statusCode}`);
@@ -103,19 +102,10 @@ app.post("/login", (req, respond) => {
                     .catch((error) => {
                       console.error(error);
                     });
-                }else{
-                  respond.send("was already in db")
+                } else {
+                  respond.send("was already in db");
                 }
               });
-
-              //checking here
-              /**
-               * if( isAccountCreated)
-               *  return full object
-               * else if isaccount not created
-               *  call add new user
-               * return wrong credentials
-               */
             });
 
             res.on("searchReference", async (referral) => {
@@ -138,8 +128,7 @@ app.post("/login", (req, respond) => {
 });
 
 app.get("/search", async (req, respond) => {
-
-    client.bind(process.env.LDAP_USERNAME, process.env.LDAP_PASSWORD , function (
+  client.bind(process.env.LDAP_USERNAME, process.env.LDAP_PASSWORD, function (
     err
   ) {
     if (err) {
@@ -154,8 +143,10 @@ app.get("/search", async (req, respond) => {
 
       var opts = {
         filter: `&(studentclasses=CSCE*)(uid=${userUARK})`,
+
         scope: "sub",
-     //attributes: ["uid", "cn", "mail", "studentClasses", "displayName", "sn", "studentDepartments"],
+
+        //attributes: ["uid", "cn", "mail", "studentClasses", "displayName", "sn", "studentDepartments"],
       };
 
       //base: which location i need to search
@@ -165,7 +156,6 @@ app.get("/search", async (req, respond) => {
           console.log("Error in search " + err);
           respond.send("User does not exist");
         } else {
-
           res.on("searchEntry", async (entry) => {
             respond.send(entry.object);
           });
@@ -181,6 +171,56 @@ app.get("/search", async (req, respond) => {
 
           res.on("end", async (result) => {
             console.log(result.status);
+          });
+        }
+      });
+    }
+  });
+});
+
+app.get("/classes", async (req, respond) => {
+  client.bind(process.env.LDAP_USERNAME, process.env.LDAP_PASSWORD, function (
+    err
+  ) {
+    if (err) {
+      console.log("Error in new connetion " + err);
+    } else {
+      /*if connection is success then go for any operation*/
+      console.log("Successfully connected to LDAP");
+      const classSearch = req.body.classSearch;
+
+      var opts = {
+        filter: `&(studentclasses=${classSearch}*)`,
+        scope: "sub",
+        timeLimit: 6000,
+        //attributes: ["uid", "cn", "mail", "studentClasses", "displayName", "sn", "studentDepartments"],
+      };
+
+      //base: which location i need to search
+
+      client.search("ou=people,dc=uark,dc=edu", opts, (err, res) => {
+        if (err) {
+          console.log("Error in search " + err);
+          respond.send("User does not exist");
+        } else {
+          var students = [];
+          res.on("searchEntry", async (entry) => {
+            students.push(entry.object.uid);
+          });
+
+          res.on("searchReference", async (referral) => {
+            console.log("referral: " + referral.uris.join());
+          });
+
+          res.on("error", async (err) => {
+            console.error("error: " + err.message);
+            respond.send(err.message);
+          });
+
+          res.on("end", async (result) => {
+            console.log(result.status);
+            respond.send(students);
+            students = [];
           });
         }
       });
