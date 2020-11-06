@@ -19,7 +19,7 @@ var client = ldap.createClient({
 const PORT = 3000;
 
 
-const crudURL= "http://mobile-app.ddns.uark.edu/CRUDapis/";
+const crudURL= "http://mobile-app.ddns.uark.edu/CRUDapis";
 // const crudURL="http://localhost:4000";
 
 app.listen(PORT, () => {
@@ -71,12 +71,12 @@ app.post("/login", (req, respond) => {
               const LDAPUSER = entry.object;
 
               fetch(
-                `http://localhost:4000/users/getUser?USER_id=${userUARK}`
+                crudURL+`/users/getUser?USER_id=${userUARK}`
               ).then((res) => {
                 if (res.status === 400) {
                   //if person doesn't exist, let's add them
 
-                    axios.post("http://localhost:4000/users/addUser", {
+                    axios.post(crudURL+"/users/addUser", {
                       USER:LDAPUSER
                     })
                     .then((res) => {
