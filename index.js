@@ -26,14 +26,7 @@ app.get("/", (req, res) => {
   res.send("allison");
 });
 
-app.get("/getTrue", (req, res) => {
-  const userTest = {};
-  res.send("allison");
-});
 
-app.get("/getFalse", (req, res) => {
-  res.send("allison");
-});
 
 app.post("/login", (req, respond) => {
   console.log(req.body);
@@ -89,11 +82,14 @@ app.post("/login", (req, respond) => {
                   } = LDAPUSER;
 
                   axios
+                    // .post("http://localhost:4000/users/addUser", {
+                    //   USER_id: `${uid}`,
+                    //   USER_fName: `${givenName}`,
+                    //   USER_LName: `${sn}`,
+                    //   USER_email: `${mail}`,
+                    // })
                     .post("http://localhost:4000/users/addUser", {
-                      USER_id: `${uid}`,
-                      USER_fName: `${givenName}`,
-                      USER_LName: `${sn}`,
-                      USER_email: `${mail}`,
+                      USER:LDAPUSER
                     })
                     .then((res) => {
                       console.log(`statusCode: ${res.statusCode}`);
