@@ -71,24 +71,8 @@ app.post("/login", (req, respond) => {
               ).then((res) => {
                 if (res.status === 400) {
                   //if person doesn't exist, let's add them
-                  const {
-                    uid,
-                    givenName,
-                    mail,
-                    studentClasses,
-                    displayName,
-                    sn,
-                    studentDepartments,
-                  } = LDAPUSER;
 
-                  axios
-                    // .post("http://localhost:4000/users/addUser", {
-                    //   USER_id: `${uid}`,
-                    //   USER_fName: `${givenName}`,
-                    //   USER_LName: `${sn}`,
-                    //   USER_email: `${mail}`,
-                    // })
-                    .post("http://localhost:4000/users/addUser", {
+                    axios.post("http://localhost:4000/users/addUser", {
                       USER:LDAPUSER
                     })
                     .then((res) => {
