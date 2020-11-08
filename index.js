@@ -18,8 +18,8 @@ var client = ldap.createClient({
 
 const PORT = 3000;
 
-//const crudURL= "http://mobile-app.ddns.uark.edu/CRUDapis";
-const crudURL = "http://localhost:4000";
+const crudURL= "http://mobile-app.ddns.uark.edu/CRUDapis";
+//const crudURL = "http://localhost:4000";
 
 app.listen(PORT, () => {
   console.log("LDAP API is running");
@@ -89,9 +89,9 @@ app.post("/login", (req, respond) => {
                       })
                       .catch((error) => {
                         console.log("errrrr", error)
-                        return respond.status(400).send({
+                       return respond.status(400).send({
                           isError: true,
-                          result: error.message+"bleeo",
+                          result: error.message,
                         });
                       });
                   } else {
