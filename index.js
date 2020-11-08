@@ -62,36 +62,36 @@ app.post("/login", (req, respond) => {
 
         //base: which location i need to search
 
-        client.search("ou=people,dc=uark,dc=edu", opts, (err, res) => {
+        client.search("ou=people,dc=uark,dc=edu", opts, (err, result) => {
           if (err) {
             console.log("Error in search " + err);
-            return res.status(400).send({
+            return respond.status(400).send({
               isError: true,
               result: "User does not exist",
             });
           } else {
-            res.on("searchEntry", async (entry) => {
+            result.on("searchEntry", async (entry) => {
               const LDAPUSER = entry.object;
 
               fetch(crudURL + `/users/getUser?USER_id=${userUARK}`).then(
-                (res) => {
-                  if (res.status === 400) {
+                (result) => {
+                  if (result.status === 400) {
                     //if person doesn't exist, let's add them
-
                     axios
                       .post(crudURL + "/users/addUser", {
                         USER: LDAPUSER,
                       })
-                      .then((res) => {
-                        return res.status(200).send({
+                      .then((result) => {
+                        return respond.status(200).send({
                           isError: false,
-                          result: res.data.result,
+                          result: result.data.result,
                         });
                       })
                       .catch((error) => {
-                        return res.status(400).send({
+                        console.log("errrrr", error)
+                        return respond.status(400).send({
                           isError: true,
-                          result: error,
+                          result: error.message+"bleeo",
                         });
                       });
                   } else {
@@ -104,19 +104,19 @@ app.post("/login", (req, respond) => {
               );
             });
 
-            res.on("searchReference", async (referral) => {
+            result.on("searchReference", async (referral) => {
               console.log("referral: " + referral.uris.join());
             });
 
-            res.on("error", async (err) => {
+            result.on("error", async (err) => {
               console.error("error: " + err.message);
-              return res.status(400).send({
+              return respond.status(400).send({
                 isError: true,
                 result: err.message,
               });
             });
 
-            res.on("end", async (result) => {
+            result.on("end", async (result) => {
               console.log(result.status);
             });
           }
