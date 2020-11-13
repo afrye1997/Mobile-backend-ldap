@@ -13,7 +13,7 @@ app.use(bodyParser.json());
 var ldap = require("ldapjs");
 var client = ldap.createClient({
   url: "ldap://ds.uark.edu",
-  reconnect: false,
+  reconnect: true,
 });
 
 const PORT = 3000;
@@ -29,11 +29,25 @@ app.get("/", (req, res) => {
   res.send("LDAP API is running");
 });
 
+
+ //checking here
+              /**
+               * if( isAccountCreated)
+               *  return full object
+               * else if isaccount not created
+               *  call add new user
+               * return wrong credentials
+               */
+
+
+
+
 app.post("/login", (req, respond) => {
-  console.log(req.body);
+  //Takes in username and password
   const userUARK = req.body.user;
   const userPW = req.body.password;
-  //
+  
+  //check if username and password are valid
   client.bind(
     `uid= ${userUARK},ou=People,dc=uark,dc=edu`,
     `${userPW}`,
@@ -227,8 +241,4 @@ app.post("/login", (req, respond) => {
 //   });
 // });
 
-/**
- * 
- *  if (req.filter.matches(obj.attributes))
-  res.send(obj);
- */
+
