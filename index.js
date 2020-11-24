@@ -18,8 +18,8 @@ var client = ldap.createClient({
 
 const PORT = 3000;
 
-const crudURL= "http://mobile-app.ddns.uark.edu/CRUDapis";
-//const crudURL = "http://localhost:4000";
+//const crudURL= "http://mobile-app.ddns.uark.edu/CRUDapis";
+const crudURL = "http://localhost:4000";
 
 app.listen(PORT, () => {
   console.log("LDAP API is running");
@@ -29,24 +29,20 @@ app.get("/", (req, res) => {
   res.send("LDAP API is running");
 });
 
-
- //checking here
-              /**
-               * if( isAccountCreated)
-               *  return full object
-               * else if isaccount not created
-               *  call add new user
-               * return wrong credentials
-               */
-
-
-
+//checking here
+/**
+ * if( isAccountCreated)
+ *  return full object
+ * else if isaccount not created
+ *  call add new user
+ * return wrong credentials
+ */
 
 app.post("/login", (req, respond) => {
   //Takes in username and password
   const userUARK = req.body.user;
   const userPW = req.body.password;
-  
+
   //check if username and password are valid
   client.bind(
     `uid= ${userUARK},ou=People,dc=uark,dc=edu`,
@@ -102,16 +98,17 @@ app.post("/login", (req, respond) => {
                         });
                       })
                       .catch((error) => {
-                        console.log("errrrr", error)
-                       return respond.status(400).send({
+                        console.log("errrrr", error);
+
+                        return respond.status(400).send({
                           isError: true,
                           result: error.message,
                         });
                       });
                   } else {
-                    return respond.status(400).send({
-                      isError: true,
-                      result: LDAPUSER.givenName + " was already in db!",
+                    return respond.status(200).send({
+                      isError: false,
+                      result: LDAPUSER.givenName + " was already in db! But valid credentials!",
                     });
                   }
                 }
@@ -240,5 +237,3 @@ app.post("/login", (req, respond) => {
 //     }
 //   });
 // });
-
-
