@@ -18,7 +18,7 @@ var client = ldap.createClient({
 
 const PORT = 3000;
 
-//const crudURL= "http://mobile-app.ddns.uark.edu/CRUDapis";
+//const crudURL = "http://mobile-app.ddns.uark.edu/CRUDapis";
 const crudURL = "http://localhost:4000";
 
 app.listen(PORT, () => {
@@ -45,8 +45,11 @@ app.post("/login", (req, respond) => {
 
   //check if username and password are valid
   client.bind(
-    `uid= ${userUARK},ou=People,dc=uark,dc=edu`,
-    `${userPW}`,
+    //TODO: UNCOMMENT THIS
+    // `uid= ${userUARK},ou=People,dc=uark,dc=edu`,
+    // `${userPW}`,
+    process.env.LDAP_USERNAME,
+    process.env.LDAP_PASSWORD,
     function (err) {
       if (err) {
         return respond.status(400).send({
@@ -57,16 +60,19 @@ app.post("/login", (req, respond) => {
         console.log("Successful authentication");
 
         var opts = {
-          filter: `&(studentclasses=CSCE*)(uid=${userUARK})`,
+          filter: `&(uid=${userUARK})`,
           scope: "sub",
           attributes: [
-            "uid",
             "givenName",
+            "uid",
+            "cn",
             "mail",
             "studentClasses",
+            "facultyClasses",
             "displayName",
             "sn",
             "studentDepartments",
+            "objectClass"
           ],
         };
 
@@ -81,6 +87,7 @@ app.post("/login", (req, respond) => {
             });
           } else {
             result.on("searchEntry", async (entry) => {
+              console.log(entry.object)
               const LDAPUSER = entry.object;
 
               fetch(crudURL + `/users/getUser?USER_id=${userUARK}`).then(
@@ -108,7 +115,9 @@ app.post("/login", (req, respond) => {
                   } else {
                     return respond.status(200).send({
                       isError: false,
-                      result: LDAPUSER.givenName + " was already in db! But valid credentials!",
+                      result:
+                        LDAPUSER.givenName +
+                        " was already in db! But valid credentials!",
                     });
                   }
                 }
@@ -137,56 +146,71 @@ app.post("/login", (req, respond) => {
   );
 });
 
-// app.get("/search", async (req, res) => {
-//   client.bind(process.env.LDAP_USERNAME, process.env.LDAP_PASSWORD, function (
-//     err
-//   ) {
-//     if (err) {
-//       console.log("Error in new connetion " + err);
-//     } else {
-//       /*if connection is success then go for any operation*/
-//       console.log("Successfully connected to LDAP");
-//       // searchUser();
-//       const userUARK = req.query.userUARK;
-//       console.log(userUARK);
-//       console.log(client.connected);
+app.get("/search", async (req, respond) => {
+  client.bind(
+    process.env.LDAP_USERNAME,
+    process.env.LDAP_PASSWORD,
+    function (err) {
+      if (err) {
+        console.log("Error in new connetion " + err);
+      } else {
+        /*if connection is success then go for any operation*/
+        console.log("Successfully connected to LDAP");
+        // searchUser();
+        const userUARK = req.query.userUARK;
+        console.log(userUARK);
+        console.log(client.connected);
 
-//       var opts = {
-//         filter: `&(studentclasses=CSCE*)(uid=${userUARK})`,
+        var opts = {
+          //filter: `&(facultydept=CSCE*)(uid=${userUARK})`,
+          filter: `&(uid=${userUARK})`,
+          scope: "sub",
+          attributes: [
+            "uid",
+            "cn",
+            "mail",
+            "studentClasses",
+            "facultyClasses",
+            "displayName",
+            "sn",
+            "studentDepartments",
+            "objectClass"
+          ],
+        };
+//uoaFaculty
+//uoaStudent
+//uoaStaff
 
-//         scope: "sub",
+        //base: which location i need to search
 
-//         //attributes: ["uid", "cn", "mail", "studentClasses", "displayName", "sn", "studentDepartments"],
-//       };
+        client.search("ou=people,dc=uark,dc=edu", opts, (err, res) => {
+          if (err) {
+            console.log("Error in search " + err);
+            respond.send("User does not exist");
+          } else {
+            res.on("searchEntry", async (entry) => {
+              console.log("entered");
+             respond.send(entry.object);
+            });
 
-//       //base: which location i need to search
+            res.on("searchReference", async (referral) => {
+              console.log("referral: " + referral.uris.join());
+            });
 
-//       client.search("ou=people,dc=uark,dc=edu", opts, (err, res) => {
-//         if (err) {
-//           console.log("Error in search " + err);
-//           respond.send("User does not exist");
-//         } else {
-//           res.on("searchEntry", async (entry) => {
-//             respond.send(entry.object);
-//           });
+            res.on("error", async (err) => {
+              console.error("error: " + err.message);
+              respond.send(err.message);
+            });
 
-//           res.on("searchReference", async (referral) => {
-//             console.log("referral: " + referral.uris.join());
-//           });
-
-//           res.on("error", async (err) => {
-//             console.error("error: " + err.message);
-//             respond.send(err.message);
-//           });
-
-//           res.on("end", async (result) => {
-//             console.log(result.status);
-//           });
-//         }
-//       });
-//     }
-//   });
-// });
+            res.on("end", async (result) => {
+              console.log(result.status);
+            });
+          }
+        });
+      }
+    }
+  );
+});
 
 // app.get("/classes", async (req, respond) => {
 //   client.bind(process.env.LDAP_USERNAME, process.env.LDAP_PASSWORD, function (
