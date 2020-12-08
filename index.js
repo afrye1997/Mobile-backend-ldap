@@ -89,7 +89,7 @@ app.post("/login", (req, respond) => {
             result.on("searchEntry", async (entry) => {
               console.log(entry.object)
               const LDAPUSER = entry.object;
-
+              var userStatus="";
               fetch(crudURL + `/users/getUser?USER_id=${userUARK}`).then(
                 (result) => {
                   if (result.status === 400) {
@@ -99,9 +99,21 @@ app.post("/login", (req, respond) => {
                         USER: LDAPUSER,
                       })
                       .then((result) => {
+                       console.log(LDAPUSER.objectClass)
+                        if(LDAPUSER.objectClass.includes('uoaFaculty')){
+                          userStatus='faculty'
+                          console.log("it worked")
+                        }else if(LDAPUSER.objectClass.includes('uoaStudent')){
+                          userStatus='student'
+                          console.log("it worked")
+                        }else if(LDAPUSER.objectClass.includes('uoaStaff')){
+                          userStatus='staff'
+                          console.log("it worked")
+                        }
                         return respond.status(200).send({
                           isError: false,
                           result: result.data.result,
+                          userStatus:userStatus
                         });
                       })
                       .catch((error) => {
@@ -113,11 +125,23 @@ app.post("/login", (req, respond) => {
                         });
                       });
                   } else {
+                    if(LDAPUSER.objectClass.includes('uoaFaculty')){
+                      userStatus='faculty'
+                      console.log("it worked")
+                    }else if(LDAPUSER.objectClass.includes('uoaStudent')){
+                      userStatus='student'
+                      console.log("it worked")
+                    }else if(LDAPUSER.objectClass.includes('uoaStaff')){
+                      userStatus='staff'
+                      console.log("it worked")
+                    }
+                    
                     return respond.status(200).send({
                       isError: false,
                       result:
                         LDAPUSER.givenName +
                         " was already in db! But valid credentials!",
+                        userStatus:userStatus
                     });
                   }
                 }
